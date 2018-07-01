@@ -6,7 +6,8 @@ namespace Wile
 {
     public interface IExpressionVisitor<T>
     {
-        T VisitLiteral(Literal literal);
+        T VisitLiteral(JLiteral literal);
         T VisitObject(JObject jObject);
+        T VisitArray(JArray array);
     }
 }

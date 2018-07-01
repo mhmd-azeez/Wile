@@ -6,7 +6,21 @@ namespace Wile
 {
     public class PrintVisitor : IExpressionVisitor<string>
     {
-        public string VisitLiteral(Literal literal)
+        public string VisitArray(JArray array)
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendLine("[array] => ");
+
+            foreach (var value in array.Values)
+            {
+                builder.AppendLine($"\t {value.Accept(this)}");
+            }
+
+            return builder.ToString();
+        }
+
+        public string VisitLiteral(JLiteral literal)
         {
             return $"[literal] => {literal.Value ?? "null"}";
         }

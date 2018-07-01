@@ -1,8 +1,8 @@
 ﻿namespace Wile
 {
-    public class Literal : Expression
+    public class JLiteral : Expression
     {
-        public Literal(object value)
+        public JLiteral(object value)
         {
             Value = value;
         }
