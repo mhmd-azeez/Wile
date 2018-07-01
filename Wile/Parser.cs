@@ -37,8 +37,7 @@ namespace Wile
             {
                 return Array();
             }
-            else if (Match(TokenType.String, TokenType.Double, TokenType.Integer,
-                           TokenType.True, TokenType.False, TokenType.Null))
+            else if (Match(TokenType.String, TokenType.Double, TokenType.True, TokenType.False, TokenType.Null))
             {
                 return Literal();
             }
@@ -110,7 +109,7 @@ namespace Wile
 
         private JLiteral Literal()
         {
-            if (MatchAndConsume(TokenType.String, TokenType.Double, TokenType.Integer))
+            if (MatchAndConsume(TokenType.String, TokenType.Double))
             {
                 return new JLiteral(Previous().Literal);
             }

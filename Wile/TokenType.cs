@@ -62,19 +62,9 @@ namespace Wile
         Forewardslash,
 
         /// <summary>
-        /// -
-        /// </summary>
-        Minus,
-
-        /// <summary>
         /// End of file
         /// </summary>
         EOF,
-
-        /// <summary>
-        /// 1234
-        /// </summary>
-        Integer,
 
         /// <summary>
         /// 1234.123

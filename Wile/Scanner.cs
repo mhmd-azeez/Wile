@@ -58,7 +58,7 @@ namespace Wile
                 case ']': AddToken(TokenType.RightBracket); break;
                 case ',': AddToken(TokenType.Comma); break;
                 case ':': AddToken(TokenType.Colon); break;
-                case '-': AddToken(TokenType.Minus); break;
+                case '-': ScanNumeber(); break;
                 case '"': ScanString(); break;
 
                 case ' ':
@@ -143,14 +143,16 @@ namespace Wile
 
         private void ScanNumeber()
         {
-            while (IsDigit(Peek()) || Peek() == '.')
+            while (IsDigit(Peek()) || Peek() == '.' || Peek() == 'E' ||
+                   Peek() == 'e' || Peek() == '-' || Peek() == '+')
+            {
                 Advance();
+            }
 
             var lexeme = GetCurrentLexeme();
-            var type = lexeme.IndexOf('.') >= 0 ? TokenType.Double : TokenType.Integer;
-            var value = type == TokenType.Double ? (object)double.Parse(lexeme) : int.Parse(lexeme);
+            var value = double.Parse(lexeme, NumberStyles.Any);
 
-            AddToken(type, value);
+            AddToken(TokenType.Double, value);
         }
 
         private bool IsAlpha(char c)
