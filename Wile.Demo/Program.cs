@@ -19,6 +19,15 @@ namespace Wile.Demo
                     {
                         Console.WriteLine(token);
                     }
+
+
+                    var parser = new Parser(tokens);
+                    var expr = parser.Parse();
+
+                    var printer = new PrintVisitor();
+                    var printed = expr.Accept(printer);
+
+                    Console.WriteLine(printed);
                 }
                 catch (Exception e)
                 {
