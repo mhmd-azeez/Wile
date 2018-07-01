@@ -7,6 +7,6 @@ The implementation is influenced by [Bob Nystrom's book](http://www.craftinginte
 Because this is just a side project, I don't expect this parser to be able to parse 100% of the [spec](https://tools.ietf.org/html/rfc7159). But I'll try to make it as complete as possible. These are the components that I plan to implement: 
 
  - [X] Scanner
- - [ ] Parser
+ - [X] Parser
  - [ ] Simple Serializer
  - [ ] Simple Deserializer
