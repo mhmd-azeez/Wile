@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Wile
 {
@@ -12,6 +14,9 @@ namespace Wile
             { "true", TokenType.True },
             { "null", TokenType.Null }
         };
+
+        // From: https://stackoverflow.com/a/183909/7003797
+        private readonly Regex _unicodeSequenceRegex = new Regex(@"\\[uU]([0-9A-F]{4})");
 
         private readonly string _source;
         private readonly List<Token> _tokens = new List<Token>();
@@ -78,7 +83,7 @@ namespace Wile
 
         private void ScanString()
         {
-            while (Peek() != '"' && !IsAtEnd())
+            while ((Peek() != '"' || IsEscaped()) && !IsAtEnd())
             {
                 if (Peek() == '\n')
                     _line++;
@@ -93,7 +98,15 @@ namespace Wile
 
             var value = _source.Substring(_start + 1, _current - _start - 1)
                                .Replace("\\n", "\n")
-                               .Replace("\\t", "\t");
+                               .Replace("\\t", "\t")
+                               .Replace(@"\\", "\\")
+                               .Replace(@"\""", "\"");
+
+            value = _unicodeSequenceRegex.Replace(value, match =>
+            {
+                var character = (char)int.Parse(match.Value.Substring(2), NumberStyles.HexNumber);
+                return character.ToString();
+            });
 
             Advance();
 
@@ -114,6 +127,18 @@ namespace Wile
             {
                 throw new ScannerException(_line, $"Unknown keyword: {keyword}.");
             }
+        }
+
+        private bool IsEscaped()
+        {
+            if (_current >= 2)
+            {
+                var previousPrevious = _source[_current - 2];
+                var previous = _source[_current - 1];
+                return previous == '\\' && previousPrevious != '\\';
+            }
+
+            return false;
         }
 
         private void ScanNumeber()
