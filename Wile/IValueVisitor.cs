@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Wile
+﻿namespace Wile
 {
-    public interface IExpressionVisitor<T>
+    public interface IValueVisitor<T>
     {
         T VisitLiteral(JLiteral literal);
         T VisitObject(JObject jObject);

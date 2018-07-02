@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Wile
 {
-    public class JArray : Expression
+    public class JArray : Value
     {
-        public List<Expression> Values { get; } = new List<Expression>();
+        public List<Value> Values { get; } = new List<Value>();
 
-        public override T Accept<T>(IExpressionVisitor<T> visitor)
+        public override T Accept<T>(IValueVisitor<T> visitor)
         {
             return visitor.VisitArray(this);
         }

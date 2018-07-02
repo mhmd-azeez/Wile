@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 namespace Wile
 {
-    public class PrintVisitor : IExpressionVisitor<string>
+    public class PrintVisitor : IValueVisitor<string>
     {
         public string VisitArray(JArray array)
         {

@@ -29,9 +29,9 @@ namespace Wile.Demo
 
                     Console.WriteLine(printed);
                 }
-                catch (Exception e)
+                catch (WileConfusedException e)
                 {
-                    Console.WriteLine(e.Message);
+                    Console.WriteLine($"{e.Message} on line {e.Line} at character {e.Character}");
                 }
             }
         }

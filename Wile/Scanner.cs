@@ -42,7 +42,7 @@ namespace Wile
                 ScanToken();
             }
 
-            _tokens.Add(new Token(TokenType.EOF, "", null, _line));
+            _tokens.Add(new Token(TokenType.EOF, "", null, _line, _current));
             return _tokens;
         }
 
@@ -76,7 +76,7 @@ namespace Wile
                     else if (IsDigit(c))
                         ScanNumeber();
                     else
-                        throw new ScannerException(_line, $"Unexpected character: {c} at line {_line}");
+                        throw new WileConfusedException(_line, _current, $"Unexpected token: {c}.");
                     break;
             }
         }
@@ -93,7 +93,7 @@ namespace Wile
 
             if (IsAtEnd())
             {
-                throw new ScannerException(_line, "Unterminated string.");
+                throw new WileConfusedException(_line, _current, "Unterminated string.");
             }
 
             var value = _source.Substring(_start + 1, _current - _start - 1)
@@ -104,8 +104,15 @@ namespace Wile
 
             value = _unicodeSequenceRegex.Replace(value, match =>
             {
-                var character = (char)int.Parse(match.Value.Substring(2), NumberStyles.HexNumber);
-                return character.ToString();
+                try
+                {
+                    var character = (char)int.Parse(match.Value.Substring(2), NumberStyles.HexNumber);
+                    return character.ToString();
+                }
+                catch (Exception)
+                {
+                    throw new WileConfusedException(GetLine(match.Index), _current, "Badly formatted Number.");
+                }
             });
 
             Advance();
@@ -125,7 +132,7 @@ namespace Wile
             }
             else
             {
-                throw new ScannerException(_line, $"Unknown keyword: {keyword}.");
+                throw new WileConfusedException(_line, _current, $"Unknown keyword: {keyword}.");
             }
         }
 
@@ -141,6 +148,22 @@ namespace Wile
             return false;
         }
 
+        private int GetLine(int index)
+        {
+            if (index > _source.Length)
+                return -1;
+
+            int line = 0;
+
+            for (int i = 0; i < index; i++)
+            {
+                if (_source[i] == '\n')
+                    line++;
+            }
+
+            return line;
+        }
+
         private void ScanNumeber()
         {
             while (IsDigit(Peek()) || Peek() == '.' || Peek() == 'E' ||
@@ -152,28 +175,16 @@ namespace Wile
             var lexeme = GetCurrentLexeme();
             var value = double.Parse(lexeme, NumberStyles.Any);
 
-            AddToken(TokenType.Double, value);
+            AddToken(TokenType.Number, value);
         }
 
-        private bool IsAlpha(char c)
-        {
-            return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-        }
+        private bool IsAlpha(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 
-        private string GetCurrentLexeme()
-        {
-            return _source.Substring(_start, _current - _start);
-        }
+        private string GetCurrentLexeme() => _source.Substring(_start, _current - _start);
 
-        private bool IsDigit(char c)
-        {
-            return c >= '0' && c <= '9';
-        }
+        private bool IsDigit(char c) => c >= '0' && c <= '9';
 
-        private bool IsAlphaNumeric(char c)
-        {
-            return IsAlpha(c) || IsDigit(c);
-        }
+        private bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDigit(c);
 
         private char PeekNext()
         {
@@ -187,21 +198,15 @@ namespace Wile
             return _source[_current];
         }
 
-        private void AddToken(TokenType type)
-        {
-            AddToken(type, null);
-        }
+        private void AddToken(TokenType type) => AddToken(type, null);
 
         private void AddToken(TokenType type, object literal)
         {
             var lexeme = GetCurrentLexeme();
-            _tokens.Add(new Token(type, lexeme, literal, _line));
+            _tokens.Add(new Token(type, lexeme, literal, _line, _current));
         }
 
-        private char Advance()
-        {
-            return _source[_current++];
-        }
+        private char Advance() => _source[_current++];
 
         private bool IsAtEnd() => _current >= _source.Length;
         #endregion

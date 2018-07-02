@@ -1,6 +1,6 @@
 ﻿namespace Wile
 {
-    public class JLiteral : Expression
+    public class JLiteral : Value
     {
         public JLiteral(object value)
         {
@@ -9,7 +9,7 @@
 
         public object Value { get; }
 
-        public override T Accept<T>(IExpressionVisitor<T> visitor)
+        public override T Accept<T>(IValueVisitor<T> visitor)
         {
             return visitor.VisitLiteral(this);
         }

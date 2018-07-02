@@ -2,11 +2,11 @@
 
 namespace Wile
 {
-    public class JObject : Expression
+    public class JObject : Value
     {
-        public Dictionary<string, Expression> Members { get; } = new Dictionary<string, Expression>();
+        public Dictionary<string, Value> Members { get; } = new Dictionary<string, Value>();
 
-        public override T Accept<T>(IExpressionVisitor<T> visitor)
+        public override T Accept<T>(IValueVisitor<T> visitor)
         {
             return visitor.VisitObject(this);
         }

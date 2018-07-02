@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Wile
 {
@@ -16,7 +15,6 @@ namespace Wile
             { TokenType.False, false },
             { TokenType.Null, null }
         };
-
         #endregion
 
         #region Constructor
@@ -27,7 +25,7 @@ namespace Wile
         #endregion
 
         #region Methods
-        public Expression Parse()
+        public Value Parse()
         {
             if (Match(TokenType.LeftParanthesis))
             {
@@ -37,26 +35,26 @@ namespace Wile
             {
                 return Array();
             }
-            else if (Match(TokenType.String, TokenType.Double, TokenType.True, TokenType.False, TokenType.Null))
+            else if (Match(TokenType.String, TokenType.Number, TokenType.True, TokenType.False, TokenType.Null))
             {
                 return Literal();
             }
             else
             {
-                throw new Exception($"Unexpected token: {Peek()}");
+                throw new WileConfusedException(Peek().Line, Peek().Character, $"Unexpected token: {Peek().Lexeme}");
             }
         }
 
         private JArray Array()
         {
-            Advance(); // Consume the bracket
+            Advance(); // Consume the right bracket
 
             var array = new JArray();
 
             while (!MatchAndConsume(TokenType.RightBracket))
             {
                 if (IsAtEnd())
-                    throw new Exception("Unterminated array.");
+                    throw new WileConfusedException(Peek().Line, Peek().Character, "Unterminated array.");
 
                 array.Values.Add(Parse());
 
@@ -69,14 +67,14 @@ namespace Wile
 
         private JObject Object()
         {
-            Advance(); // Consume the parenthesis
+            Advance(); // Consume the right parenthesis
 
             var root = new JObject();
 
             while (!MatchAndConsume(TokenType.RightParenthesis))
             {
                 if (IsAtEnd())
-                    throw new Exception("Unterminated Object.");
+                    throw new WileConfusedException(Peek().Line, Peek().Character, "Unterminated Object.");
 
                 var member = Pair();
                 root.Members.Add(member.Key, member.Value);
@@ -88,7 +86,7 @@ namespace Wile
             return root;
         }
 
-        private KeyValuePair<string, Expression> Pair()
+        private KeyValuePair<string, Value> Pair()
         {
             if (MatchAndConsume(TokenType.String))
             {
@@ -97,19 +95,19 @@ namespace Wile
                 if (Peek().Type == TokenType.Colon)
                     Advance();
                 else
-                    throw new Exception($"Expected :, Got: {Peek()}");
+                    throw new WileConfusedException(Peek().Line, Peek().Character, $"Expected :\tGot: {Peek().Lexeme}");
 
                 var value = Parse();
 
-                return new KeyValuePair<string, Expression>(key, value);
+                return new KeyValuePair<string, Value>(key, value);
             }
 
-            throw new Exception($"Expected \", Got: {Previous()}");
+            throw new WileConfusedException(Previous().Line, Previous().Character, $"Expected \"\tGot: {Previous().Lexeme}");
         }
 
         private JLiteral Literal()
         {
-            if (MatchAndConsume(TokenType.String, TokenType.Double))
+            if (MatchAndConsume(TokenType.String, TokenType.Number))
             {
                 return new JLiteral(Previous().Literal);
             }
@@ -118,19 +116,12 @@ namespace Wile
                 return new JLiteral(_keywords[Previous().Type]);
             }
 
-            throw new ArgumentException("Invalid tokens for a literal value.");
+            throw new WileConfusedException(Peek().Line, Peek().Character, "Invalid tokens for a literal value.");
         }
 
-        private bool IsAtEnd()
-        {
-            return _tokens.Count == _current;
-        }
+        private bool IsAtEnd() => _tokens.Count == _current;
 
-        private bool Check(TokenType type)
-        {
-            if (IsAtEnd()) return false;
-            return _tokens[_current].Type == type;
-        }
+        private bool Check(TokenType type) => !IsAtEnd() && _tokens[_current].Type == type;
 
         private bool MatchAndConsume(params TokenType[] types)
         {
@@ -159,15 +150,9 @@ namespace Wile
             return Previous();
         }
 
-        private Token Peek()
-        {
-            return _tokens[_current];
-        }
+        private Token Peek() => _tokens[_current];
 
-        private Token Previous()
-        {
-            return _tokens[_current - 1];
-        }
+        private Token Previous() => _tokens[_current - 1];
         #endregion
     }
 }
