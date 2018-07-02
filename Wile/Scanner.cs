@@ -104,15 +104,8 @@ namespace Wile
 
             value = _unicodeSequenceRegex.Replace(value, match =>
             {
-                try
-                {
-                    var character = (char)int.Parse(match.Value.Substring(2), NumberStyles.HexNumber);
-                    return character.ToString();
-                }
-                catch (Exception)
-                {
-                    throw new WileConfusedException(GetLine(match.Index), _current, "Badly formatted Number.");
-                }
+                var character = (char)int.Parse(match.Value.Substring(2), NumberStyles.HexNumber);
+                return character.ToString();
             });
 
             Advance();
