@@ -28,7 +28,7 @@ namespace Wile.Demo
 
                     Console.WriteLine(printed);
 
-                    var generator = new Generator();
+                    var generator = new Generator(false);
                     var json = expr.Accept(generator);
                     Console.WriteLine(json);
 
