@@ -25,7 +25,7 @@ namespace Wile
         #endregion
 
         #region Methods
-        public Value Parse()
+        public JValue Parse()
         {
             if (Match(TokenType.LeftParanthesis))
             {
@@ -86,7 +86,7 @@ namespace Wile
             return root;
         }
 
-        private KeyValuePair<string, Value> Pair()
+        private KeyValuePair<string, JValue> Pair()
         {
             if (MatchAndConsume(TokenType.String))
             {
@@ -99,21 +99,29 @@ namespace Wile
 
                 var value = Parse();
 
-                return new KeyValuePair<string, Value>(key, value);
+                return new KeyValuePair<string, JValue>(key, value);
             }
 
             throw new WileConfusedException(Previous().Line, Previous().Character, $"Expected \"\tGot: {Previous().Lexeme}");
         }
 
-        private JLiteral Literal()
+        private JValue Literal()
         {
-            if (MatchAndConsume(TokenType.String, TokenType.Number))
+            if (MatchAndConsume(TokenType.String))
             {
-                return new JLiteral(Previous().Literal);
+                return new JString((string)Previous().Literal);
             }
-            else if (MatchAndConsume(TokenType.True, TokenType.False, TokenType.Null))
+            else if (MatchAndConsume(TokenType.Number))
             {
-                return new JLiteral(_keywords[Previous().Type]);
+                return new JNumber((double)Previous().Literal);
+            }
+            else if (MatchAndConsume(TokenType.True, TokenType.False))
+            {
+                return new JBoolean((bool)_keywords[Previous().Type]);
+            }
+            else if (MatchAndConsume(TokenType.Null))
+            {
+                return new JNull();
             }
 
             throw new WileConfusedException(Peek().Line, Peek().Character, "Invalid tokens for a literal value.");

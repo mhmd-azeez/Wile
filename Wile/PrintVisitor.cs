@@ -18,9 +18,19 @@ namespace Wile
             return builder.ToString();
         }
 
-        public string VisitLiteral(JLiteral literal)
+        public string VisitBoolean(JBoolean boolean)
         {
-            return $"[literal] => {literal.Value ?? "null"}";
+            return $"[boolean] => {boolean.Value}";
+        }
+
+        public string VisitNull(JNull value)
+        {
+            return $"[null]";
+        }
+
+        public string VisitNumber(JNumber number)
+        {
+            return $"[number] => {number.Value}";
         }
 
         public string VisitObject(JObject jObject)
@@ -35,6 +45,11 @@ namespace Wile
             }
 
             return builder.ToString();
+        }
+
+        public string VisitString(JString text)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
