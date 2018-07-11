@@ -49,7 +49,7 @@ namespace Wile
 
         public string VisitString(JString text)
         {
-            throw new System.NotImplementedException();
+            return $"[string] => {text}";
         }
     }
 }

@@ -20,7 +20,6 @@ namespace Wile.Demo
                         Console.WriteLine(token);
                     }
 
-
                     var parser = new Parser(tokens);
                     var expr = parser.Parse();
 
@@ -28,6 +27,11 @@ namespace Wile.Demo
                     var printed = expr.Accept(printer);
 
                     Console.WriteLine(printed);
+
+                    var generator = new Generator();
+                    var json = expr.Accept(generator);
+                    Console.WriteLine(json);
+
                 }
                 catch (WileConfusedException e)
                 {
